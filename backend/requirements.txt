@@ -8,3 +8,5 @@ speechbrain
 huggingface_hub
 
 faker
+
+asyncio
