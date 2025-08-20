@@ -1,0 +1,105 @@
+sender,subject,body,dmarc_spf_pass,label,num_links,num_dollar_signs,num_urgent_terms,num_personal_pronouns,domain_match,suspicious_subject,signature_mismatch
+security@paypal-security.com,Security Alert: Unusual Activity Detected,"
+Dear Customer,
+
+We've detected suspicious activity on your PayPal account. To protect your account, 
+we've temporarily restricted access until verification is completed.
+
+Please verify your identity at: https://secure.paypal.com/verify-login
+
+If this wasn't you, contact our security team immediately.
+
+This action is required within 24 hours to maintain account access.
+
+PayPal Security Team
+            ",0,1,1,0,4,6,0,1,1
+billing@microsoft-updates.com,Invoice #INV-2023-7897 - Past Due Payment Notice,"
+Dear Customer,
+
+This is a reminder that your payment for invoice #INV-2023-7897 for $299.99 is past due.
+To avoid service interruption, please update your payment information.
+
+Our records indicate the following invoice is outstanding:
+Invoice #: INV-2023-7897
+Amount Due: $299.99
+Due Date: 2023-11-15
+
+Please click here to update your payment method:
+https://billing.microsoft-updates.com/update-payment
+
+If you believe this is an error, please contact our billing department.
+
+Thank you for your prompt attention to this matter.
+
+Microsoft Billing Department
+            ",0,1,1,2,0,4,0,0,1
+hr@amazon-corp.com,Urgent: Your Amazon Account Suspension Notice,"
+Dear Valued Customer,
+
+We've noticed violations of our policies on your Amazon account. As a result, 
+we've suspended your account until further notice.
+
+To appeal this suspension, you must complete the verification process immediately:
+https://verify.account-status.com/amazon
+
+Failure to complete verification within 72 hours will result in permanent account closure.
+
+Amazon Account Compliance Team
+            ",0,1,1,0,2,6,0,1,1
+support@chase-alerts.com,Security Alert: New Device Login Detected,"
+Dear Chase Customer,
+
+We've detected a login to your Chase account from a new device or browser.
+
+If this was you, no action is needed.
+
+If this wasn't you, please secure your account immediately at:
+https://secure.chase.com/security
+
+Chase Account Security
+            ",0,1,1,0,2,5,0,1,1
+admin@your-bank-online.com,Required Action: Verify Your Banking Information,"
+Dear Customer,
+
+As part of our routine security upgrade, we require you to verify your banking information 
+to ensure continued access to your account.
+
+Please verify your details at: https://secure.your-bank-online.com/verify
+
+This verification is required within 24 hours.
+
+Thank you for your cooperation.
+
+Your Bank Security Team
+            ",0,1,1,0,2,6,0,1,1
+john.smith@company.com,Following up on our meeting,"
+Hi Sarah,
+
+Great connecting with you today during our meeting about the Q4 marketing strategy. 
+As discussed, I've attached the presentation materials for your review.
+
+Let me know if you have any questions or need additional information.
+
+We're excited about moving forward with these initiatives and look forward to our next check-in next week.
+
+Best regards,
+John Smith
+Marketing Manager
+Company
+            ",1,0,0,0,0,5,1,0,0
+billing@company.com,Your November 2023 Statement,"
+Dear Customer,
+
+Your November 2023 statement is now available in your secure online portal. You can 
+access it by logging into your account at https://portal.company.com/statements.
+
+The statement includes all transactions processed between November 1, 2023 and November 30, 2023.
+
+If you have any questions about your statement, please don't hesitate to contact 
+our customer service team at support@company.com or call 1-800-555-1234.
+
+Thank you for your business.
+
+Sincerely,
+Company Billing Department
+            ",1,0,1,0,1,5,1,0,0
