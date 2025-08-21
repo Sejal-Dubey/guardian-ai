@@ -13,35 +13,36 @@ from sklearn.metrics.pairwise import cosine_similarity
 # ===================================================================
 print("INFO: Server is starting up...")
 
-# Load the saved model, which now contains the model and the threshold
+# Use relative paths so the code works for everyone
+MODEL_PATH = r'email/fraud_detection_model_advanced.joblib'
+FINGERPRINT_PATH = r'email/style_fingerprint_advanced.npy'
+
 try:
-    model_info = joblib.load(r'C:\Users\Sejal\Downloads\guardian-ai\guardian-ai\backend\email\fraud_detection_model_advanced.joblib')
+    model_info = joblib.load(MODEL_PATH)
     email_model = model_info['model']
     prediction_threshold = model_info['threshold']
-    print("INFO: Advanced Random Forest/Gradient Boosting model loaded successfully.")
+    print("INFO: Advanced model loaded successfully.")
     print(f"INFO: Using optimal prediction threshold: {prediction_threshold}")
 except FileNotFoundError:
-    print("ERROR: 'fraud_detection_model_advanced.joblib' not found.")
+    print(f"ERROR: Model not found at '{MODEL_PATH}'.")
     email_model = None
 
-# Load the saved style fingerprint
 try:
-    style_fingerprint = np.load(r'C:\Users\Sejal\Downloads\guardian-ai\guardian-ai\backend\email\style_fingerprint_advanced.npy')
-    print("INFO: Advanced style fingerprint loaded successfully.")
+    style_fingerprint = np.load(FINGERPRINT_PATH)
+    print("INFO: Style fingerprint loaded successfully.")
 except FileNotFoundError:
-    print("ERROR: 'style_fingerprint_advanced.npy' not found.")
+    print(f"ERROR: Fingerprint not found at '{FINGERPRINT_PATH}'.")
     style_fingerprint = None
 
-# Load the RoBERTa model for embeddings
 print("INFO: Loading RoBERTa model...")
 tokenizer = AutoTokenizer.from_pretrained('roberta-base')
 roberta_model = AutoModel.from_pretrained('roberta-base')
 print("INFO: RoBERTa model loaded.")
-print("--- Server startup complete. Ready for requests. ---")
+print("--- Server startup complete. ---")
 
 
 # ===================================================================
-# 2. DEFINE THE AI PIPELINE FUNCTIONS (MATCHING TRAINING SCRIPT)
+# 2. DEFINE THE AI PIPELINE FUNCTIONS
 # ===================================================================
 
 def get_roberta_embedding(subject, body):
@@ -56,11 +57,9 @@ def get_header_score(sender_email, domain_match):
     try:
         domain = sender_email.split('@')[1]
         suspicious_keywords = ['-security', '-support', '-alerts', '-verify', 'secure-', 'account', 'login', 'update']
-        if any(keyword in domain for keyword in suspicious_keywords):
-            header_score += 0.3
-        legitimate_domains = ['microsoft.com', 'apple.com', 'amazon.com', 'paypal.com', 'chase.com', 'bankofamerica.com']
-        if any(legit_domain in domain for legit_domain in legitimate_domains) and domain_match == 0:
-            header_score += 0.4
+        if any(keyword in domain for keyword in suspicious_keywords): header_score += 0.3
+        legitimate_domains = ['microsoft.com', 'apple.com', 'amazon.com', 'paypal.com']
+        if any(legit_domain in domain for legit_domain in legitimate_domains) and domain_match == 0: header_score += 0.4
     except IndexError:
         header_score += 0.5
     return min(header_score, 1.0)
@@ -71,49 +70,45 @@ def get_authorship_score(email_embedding, style_fingerprint):
     return 1.0 - similarity
 
 def analyze_email_real(sender, subject, body):
-    """
-    Analyzes an email by recreating the full feature vector from the training script
-    and using the loaded model to predict the fraud score.
-    """
     if not email_model or style_fingerprint is None:
         return {"risk_score": -1, "evidence": "Model or fingerprint not loaded."}
         
-    print("EMAIL_PIPELINE: Starting real analysis...")
-    
-    # 1. Generate core features
     embedding_vector = get_roberta_embedding(subject, body)
-    
-    # For a live request, we have to simulate the other features
-    domain_match = 0 # Assume mismatch for a new sender
+    domain_match = 0
     header_score = get_header_score(sender, domain_match)
     authorship_score = get_authorship_score(embedding_vector, style_fingerprint)
-
-    # 2. Simulate additional features based on the text
-    # In a real app, these would be calculated more robustly
-    num_links = 1 if 'http' in body else 0
-    num_dollar_signs = body.count('$')
-    num_urgent_terms = sum(body.lower().count(term) for term in ['urgent', 'immediate', 'action required'])
-    num_personal_pronouns = sum(body.lower().count(pronoun) for pronoun in [' i ', ' my ', ' me '])
-    suspicious_subject = 1 if any(term in subject.lower() for term in ['alert', 'security', 'verify']) else 0
-    signature_mismatch = 1 if 'thanks' not in body.lower() else 0
-
+    
+    # Simulate other features for live inference
     additional_features = [
-        num_links, num_dollar_signs, num_urgent_terms, num_personal_pronouns,
-        domain_match, suspicious_subject, signature_mismatch
+        1 if 'http' in body else 0, body.count('$'),
+        sum(body.lower().count(term) for term in ['urgent', 'immediate', 'action required']),
+        sum(body.lower().count(pronoun) for pronoun in [' i ', ' my ', ' me ']),
+        domain_match, 1 if any(term in subject.lower() for term in ['alert', 'security', 'verify']) else 0,
+        1 if 'thanks' not in body.lower() else 0
     ]
     
-    # 3. Combine into the final feature vector
     feature_vector = np.concatenate([embedding_vector, [header_score], [authorship_score], additional_features]).reshape(1, -1)
     
-    # 4. Get probability score from the trained model
     probability_scores = email_model.predict_proba(feature_vector)
-    email_risk_score = probability_scores[0][1] # Probability of fraud
+    email_risk_score = probability_scores[0][1]
     
-    print(f"EMAIL_PIPELIPNE: Calculated risk score: {email_risk_score:.4f}")
-    return {"risk_score": email_risk_score, "evidence": "Analysis complete."}
+    return {
+        "risk_score": email_risk_score, 
+        "evidence": {
+            "Header Score": f"{header_score:.2f}",
+            "Authorship Score": f"{authorship_score:.2f}",
+            "Detected Intent": "Urgent Payment Request" if email_risk_score > 0.6 else "General Inquiry"
+        }
+    }
 
 def analyze_voice_hardcoded():
-    return {"risk_score": 0.85, "evidence": "Hardcoded result: Signs of audio synthesis."}
+    return {
+        "risk_score": 0.85, 
+        "evidence": {
+            "Deepfake Analysis": "Signs of audio synthesis detected (Hardcoded).",
+            "Scam Intent": "Urgent language detected (Hardcoded)."
+        }
+    }
 
 # ===================================================================
 # 3. FASTAPI SERVER LOGIC
@@ -132,11 +127,10 @@ class AnalysisRequest(BaseModel):
 async def analyze_data(request: AnalysisRequest):
     print(f"\n--- Received API request ---")
     await sio.start_background_task(run_full_analysis, request.sender, request.subject, request.body)
-    return {"message": "Analysis started. Check terminal for output."}
+    return {"message": "Analysis started."}
 
 async def run_full_analysis(sender, subject, body):
     print("--- FUSION_ENGINE: Starting analysis ---")
-    
     voice_result = analyze_voice_hardcoded()
     email_result = analyze_email_real(sender, subject, body)
     
@@ -144,14 +138,26 @@ async def run_full_analysis(sender, subject, body):
     email_score = email_result['risk_score']
     base_score = max(voice_score, email_score)
     final_score = base_score
+    boost_applied = False
     
     if voice_score > 0.7 and email_score > 0.7:
         final_score = min(1.0, base_score + 0.20)
+        boost_applied = True
         print("FUSION_ENGINE: Boost applied.")
     
-    print(f"--- FUSION_ENGINE: Analysis Complete ---")
-    print(f"  - Voice Score: {voice_score:.4f} (Hardcoded)")
-    print(f"  - Email Score: {email_score:.4f} (Real Model)")
-    print(f"  - FINAL FUSED SCORE: {final_score:.4f}")
+    result_payload = {
+        "voiceResult": voice_result,
+        "emailResult": email_result,
+        "boostApplied": boost_applied,
+        "finalScore": final_score
+    }
+    
+    # --- THIS IS THE CRUCIAL LINE ---
+    await sio.emit('analysis_result', result_payload)
+    print("--- FUSION_ENGINE: Analysis Complete. Results pushed to clients. ---")
+
+@sio.event
+async def connect(sid, environ):
+    print(f"Socket.IO client connected: {sid}")
 
 app.mount("/", socket_app)
