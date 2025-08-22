@@ -10,7 +10,6 @@ df = pd.read_csv("mufg_intent_dataset.csv")
 
 train_df, val_df = train_test_split(df, test_size=0.2, stratify=df["label"], random_state=42)
 
-# Convert to HuggingFace Dataset
 train_dataset = Dataset.from_pandas(train_df)
 val_dataset   = Dataset.from_pandas(val_df)
 
@@ -51,8 +50,6 @@ def compute_metrics(eval_pred):
     }
 
 
-
-
 training_args = TrainingArguments(
     output_dir="./mufg_roberta_results",
     eval_strategy="epoch",
@@ -76,11 +73,11 @@ trainer = Trainer(
     compute_metrics=compute_metrics
 )
 
-
 trainer.train()
 
 # Save final model
 trainer.save_model("mufg_roberta_intent")
 tokenizer.save_pretrained("mufg_roberta_intent")
+
 
 print("Fine-tuning complete! Model saved at: mufg_roberta_intent/")
