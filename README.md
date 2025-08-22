@@ -61,8 +61,8 @@ Guardian AI is built on a **modern, scalable microservices architecture** design
 | ----------------- | -------------------------------------------------------------------------------------------------------- |
 | **Frontend**      | React, WebSockets (Socket.IO), Chart.js                                                                  |
 | **Backend**       | Python, FastAPI, WebSocket Server                                                                        |
-| **AI / ML**       | PyTorch, TensorFlow, Hugging Face Transformers (`RoBERTa`), Scikit-learn (`RandomForestClassifier`), LibROSA |
-| **Infrastructure**| Docker, AWS (API Gateway, SQS, Enclaves, Data Warehouse), WebSocket Server                               |
+| **AI / ML**       | PyTorch, TensorFlow, Hugging Face Transformers (`RoBERTa`), Scikit-learn (`RandomForestClassifier`) |
+| **Infrastructure**| AWS (API Gateway, SQS, Enclaves, Data Warehouse), WebSocket Server                               |
 
 ---
 
