@@ -17,9 +17,9 @@ Scammers exploit this gap by sending a convincing phishing email and following u
 ## ✨ Key Features
 
 ### 🔊 Real-time Voice Analysis
-- 🗣️ **Deepfake Detection** – Detects synthetic voice generation in audio streams.  
+- 🗣️ **Antispoof Audio Detection** – Detects synthetic voice generation in audio streams.  
 - 🔎 **Scam Intent Analysis** – Uses NLP to identify scam-related keywords and phrases.  
-- 📞 **Caller ID Spoofing Detection** – Verifies caller identity using geographical and historical data.  
+- 📞 **Heuristic Engine** – Verifies caller identity using geographical and historical data.  
 
 ### 📧 Advanced Email Security
 - 📧 **Header Authentication** – Validates `DMARC`, `SPF`, and `DKIM` records.  
