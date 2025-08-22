@@ -1,3 +1,4 @@
+// App.js
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import LiveFeed from './components/LiveFeed';
@@ -15,17 +16,22 @@ function App() {
   const [showAlarm, setShowAlarm] = useState(false);
 
   useEffect(() => {
-    const socket = io(SOCKET_SERVER_URL, { transports: ["websocket"] });
+    // 👇 Correct path to Socket.IO backend
+    const socket = io(SOCKET_SERVER_URL, {
+      path: "/ws/socket.io",
+      transports: ["websocket"],
+    });
 
     socket.on("connect", () => setIsConnected(true));
     socket.on("disconnect", () => setIsConnected(false));
 
     socket.on("analysis_result", (data) => {
       setAnalysisData(data);
+
       const now = new Date().toLocaleTimeString('en-US');
       const newEvents = [
-          { time: now, type: 'Email', score: (data.emailResult.risk_score * 100).toFixed(0) },
-          { time: now, type: 'Voice', score: (data.voiceResult.risk_score * 100).toFixed(0) }
+        { time: now, type: 'Email', score: (data.emailResult.risk_score * 100).toFixed(0) },
+        { time: now, type: 'Voice', score: (data.voiceResult.risk_score * 100).toFixed(0) }
       ];
       setLiveFeedEvents(prevEvents => [...newEvents, ...prevEvents]);
 
@@ -38,16 +44,16 @@ function App() {
     return () => socket.disconnect();
   }, []);
 
-  // --- NEW: Function to handle form submission ---
+  // --- Send form data to backend ---
   const handleAnalysisRequest = async (formData) => {
     try {
-        await fetch(`${SOCKET_SERVER_URL}/analyze`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(formData),
-        });
+      await fetch(`${SOCKET_SERVER_URL}/analyze`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
     } catch (error) {
-        console.error("Failed to send analysis request:", error);
+      console.error("Failed to send analysis request:", error);
     }
   };
 
@@ -61,8 +67,12 @@ function App() {
             <LiveFeed 
               events={liveFeedEvents} 
               threatsToday={threatsToday} 
-              status={analysisData ? (analysisData.finalScore > 0.7 ? "Threat Neutralized" : "Low Risk Detected") : "Awaiting Analysis"}
-              onAnalyze={handleAnalysisRequest} // Pass the handler function
+              status={
+                analysisData 
+                  ? (analysisData.finalScore > 0.7 ? "Threat Neutralized" : "Low Risk Detected") 
+                  : "Awaiting Analysis"
+              }
+              onAnalyze={handleAnalysisRequest}
             />
           </div>
           <div className="lg:w-2/3">
